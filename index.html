@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cop Friendly TN | Citizen Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid var(--text-gold);
+            margin-bottom: 40px;
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 10px; }
+        .hero p { font-size: 1.2rem; color: #ccc; max-width: 600px; margin: 0 auto; }
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .portal-card {
+            background: rgba(26, 22, 20, 0.8);
+            border: 1px solid var(--border-bronze);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #fff;
+            display: block;
+        }
+        .portal-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--text-gold);
+            box-shadow: 0 10px 30px rgba(218, 165, 32, 0.2);
+        }
+        .portal-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .portal-card h3 {
+            color: var(--text-bronze);
+            font-family: var(--font-code);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link active">Home</a>
+            <a href="safety.html" class="sidebar-link">Safety Resources</a>
+            <a href="lost_found.html" class="sidebar-link">Lost & Found</a>
+            <a href="dashboard.html" class="sidebar-link logout-link">Officer Login</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h1 class="electric-gold">Cop Friendly TN</h1>
+        <p>Building a safer, stronger Tamil Nadu together. Your digital bridge to community policing, resources, and instant support.</p>
+    </div>
+
+    <div class="portal-grid">
+        <a href="complaint.html" class="portal-card">
+            <div class="portal-icon">📝</div>
+            <h3>File an E-FIR</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Quickly report incidents online without visiting the station.</p>
+        </a>
+        
+        <a href="feedback.html" class="portal-card">
+            <div class="portal-icon">⭐</div>
+            <h3>Citizen Feedback</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Share your positive experiences and help us serve you better.</p>
+        </a>
+
+        <a href="lost_found.html" class="portal-card">
+            <div class="portal-icon">🔍</div>
+            <h3>Lost & Found</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Report lost items or check our registry of recovered goods.</p>
+        </a>
+
+        <a href="safety.html" class="portal-card">
+            <div class="portal-icon">🛡️</div>
+            <h3>Safety Resources</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Access vital guides on women's safety, cyber security, and more.</p>
+        </a>
+
+        <a href="tips.html" class="portal-card" style="border-color:var(--color-electric-cobalt)">
+            <div class="portal-icon">🕵️</div>
+            <h3 style="color:var(--color-electric-cobalt)">Anonymous Tip Line</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Securely report suspicious activities without revealing your identity.</p>
+        </a>
+
+        <a href="traffic.html" class="portal-card">
+            <div class="portal-icon">🚦</div>
+            <h3>Traffic Fines Checker</h3>
+            <p style="color:#aaa; font-size:0.9rem;">Check pending E-Challans or fines using your vehicle number.</p>
+        </a>
+
+        <a href="missing.html" class="portal-card" style="border-color:var(--color-temple-maroon)">
+            <div class="portal-icon">👤</div>
+            <h3 style="color:var(--color-temple-maroon)">Missing Persons</h3>
+            <p style="color:#aaa; font-size:0.9rem;">View recent missing persons and help us reunite them with their families.</p>
+        </a>
+    </div>
+
+</body>
+</html>

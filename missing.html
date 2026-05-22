@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missing Persons | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border-bronze); margin-bottom: 30px; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        .missing-card { background: rgba(0,0,0,0.8); border: 1px solid var(--color-temple-maroon); border-radius: 12px; overflow: hidden; text-align: center; }
+        .missing-card img { width: 100%; height: 300px; object-fit: cover; }
+        .missing-details { padding: 15px; }
+        .missing-details h3 { color: var(--color-temple-maroon); margin: 0 0 10px 0; font-family: var(--font-code);}
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <a href="index.html" style="text-decoration:none;"><h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2></a>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link">Home</a>
+            <a href="missing.html" class="sidebar-link active">Missing Persons</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="electric-gold">Missing Persons Directory</h1>
+        <p style="color:#aaa;">Help us reunite them with their families. If you have any information, please contact 100 immediately.</p>
+    </div>
+
+    <div class="gallery">
+        <div class="missing-card">
+            <img src="assets/missing_elderly.png" alt="Missing Elderly">
+            <div class="missing-details">
+                <h3>Rangaswamy (72)</h3>
+                <p style="color:#ccc; font-size:0.9rem; margin:0;">Missing from: T. Nagar<br>Date: 12 Oct 2026<br>Wearing: White Shirt, Dhoti</p>
+            </div>
+        </div>
+        <div class="missing-card">
+            <img src="assets/missing_boy.png" alt="Missing Boy">
+            <div class="missing-details">
+                <h3>Karthik (10)</h3>
+                <p style="color:#ccc; font-size:0.9rem; margin:0;">Missing from: Madurai Station<br>Date: 14 Oct 2026<br>Wearing: School Uniform</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

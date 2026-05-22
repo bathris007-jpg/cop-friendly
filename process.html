@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing | Cop Protector</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="centered-body">
+    <div class="loader-container">
+        <div class="spinner electric-cobalt-glow"></div>
+        <h2 class="electric-cobalt text-center" id="loading-text">Encrypting Citizen Data...</h2>
+        <div class="progress-bar-container full-width">
+            <div class="progress-bar electric-cobalt-bg" id="anim-progress" style="width: 0%;"></div>
+        </div>
+        <p class="status-log" id="status-log">> Establishing secure connection to node...</p>
+    </div>
+    <script>
+        const logs = [
+            "> Establishing secure connection to node...",
+            "> Encrypting payload (AES-256)...",
+            "> Writing to FIR_Entries...",
+            "> Database transaction successful."
+        ];
+        const logEl = document.getElementById('status-log');
+        const textEl = document.getElementById('loading-text');
+        const progressEl = document.getElementById('anim-progress');
+        
+        let step = 0;
+        const interval = setInterval(() => {
+            step++;
+            progressEl.style.width = (step * 25) + '%';
+            if (step < logs.length) {
+                logEl.textContent = logs[step];
+                if(step === 2) textEl.textContent = "Transmitting to Central Core...";
+            } else {
+                clearInterval(interval);
+                window.location.href = 'success.html';
+            }
+        }, 800);
+    </script>
+</body>
+</html>

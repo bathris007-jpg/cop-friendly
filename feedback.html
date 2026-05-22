@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Feedback | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <div class="centered-body">
+        <div class="bento-card form-card">
+            <div class="text-center">
+                <h1 class="electric-gold">TN Police Feedback</h1>
+                <p class="subtitle">Help us serve you better. Submit your feedback or appreciation.</p>
+            </div>
+            
+            <form id="feedback-form">
+                <div class="form-group">
+                    <label for="f-name">Your Name</label>
+                    <input type="text" id="f-name" class="neon-input" placeholder="e.g. Ramesh" required>
+                </div>
+                <div class="form-group">
+                    <label for="f-station">Police Station Visited</label>
+                    <input type="text" id="f-station" class="neon-input" placeholder="e.g. T. Nagar Police Station" required>
+                </div>
+                <div class="form-group">
+                    <label for="f-rating">Rate your experience (1 to 5)</label>
+                    <input type="number" id="f-rating" class="neon-input" min="1" max="5" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label for="f-comments">Comments / Appreciation</label>
+                    <textarea id="f-comments" class="neon-input" style="height: 100px; resize:none" placeholder="Share your positive experience..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary full-width mt-2">Submit Feedback</button>
+            </form>
+            <div id="status-msg" class="status-log text-center mt-2"></div>
+            <div class="text-center mt-4">
+                <a href="index.html" class="sidebar-link" style="font-size:0.9rem;">&larr; Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('feedback-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const statusMsg = document.getElementById('status-msg');
+            
+            const payload = {
+                name: document.getElementById('f-name').value,
+                station: document.getElementById('f-station').value,
+                rating: document.getElementById('f-rating').value,
+                comments: document.getElementById('f-comments').value
+            };
+
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    statusMsg.innerHTML = '<span class="pasumai">Thank you! Your feedback has been recorded.</span>';
+                    e.target.reset();
+                } else {
+                    statusMsg.innerHTML = `<span class="temple-maroon">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusMsg.innerHTML = '<span class="temple-maroon">Network Error. Ensure server is running.</span>';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Feedback";
+            }
+        });
+    </script>
+</body>
+</html>

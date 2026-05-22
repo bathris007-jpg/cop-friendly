@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Resources | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border-bronze); margin-bottom: 30px; }
+        .safety-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .safety-card { background: rgba(26, 22, 20, 0.8); border: 1px solid var(--border-bronze); border-radius: 12px; padding: 25px; transition: all 0.3s; }
+        .safety-card:hover { border-color: var(--color-pasumai); box-shadow: 0 10px 20px rgba(0, 255, 127, 0.1); }
+        .safety-card h3 { color: var(--color-pasumai); font-family: var(--font-code); border-bottom: 1px dashed rgba(0,255,127,0.3); padding-bottom: 10px; }
+        .tips-list { list-style: none; padding: 0; margin-top: 15px; color: #ccc; font-size: 0.95rem; line-height: 1.6; }
+        .tips-list li { margin-bottom: 10px; position: relative; padding-left: 20px; }
+        .tips-list li::before { content: "✓"; color: var(--color-pasumai); position: absolute; left: 0; }
+        .emergency-numbers { background: rgba(165, 42, 42, 0.2); border: 1px solid var(--color-temple-maroon); border-radius: 12px; padding: 30px; max-width: 800px; margin: 40px auto; text-align: center; }
+        .number-box { display: inline-block; background: var(--color-temple-maroon); color: #fff; font-family: var(--font-code); font-size: 2rem; padding: 10px 20px; border-radius: 8px; margin: 10px; box-shadow: 0 0 15px rgba(165,42,42,0.5); }
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <a href="index.html" style="text-decoration:none;"><h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2></a>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link">Home</a>
+            <a href="safety.html" class="sidebar-link active">Safety Resources</a>
+            <a href="lost_found.html" class="sidebar-link">Lost & Found</a>
+            <a href="dashboard.html" class="sidebar-link logout-link">Officer Login</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="electric-gold">Safety Resource Hub</h1>
+        <p style="color:#aaa;">Empowering citizens with knowledge and quick access to emergency services.</p>
+    </div>
+
+    <div class="safety-grid">
+        <div class="safety-card">
+            <h3>🛡️ Women's Safety (Kavalan)</h3>
+            <ul class="tips-list">
+                <li>Download the official Kavalan SOS App.</li>
+                <li>Share your live location with trusted contacts during travel.</li>
+                <li>Call 1091 for the dedicated Women's Helpline anytime.</li>
+            </ul>
+        </div>
+        <div class="safety-card">
+            <h3>💻 Cyber Fraud Prevention</h3>
+            <ul class="tips-list">
+                <li>Never share OTPs, PINs, or CVV with anyone.</li>
+                <li>Report cyber crimes immediately at cybercrime.gov.in or call 1930.</li>
+                <li>Verify links before clicking; police will never ask for money via UPI.</li>
+            </ul>
+        </div>
+        <div class="safety-card">
+            <h3>🚦 Road Safety Rules</h3>
+            <ul class="tips-list">
+                <li>Always wear helmets (both rider and pillion).</li>
+                <li>Avoid drunk driving; it ruins lives and incurs heavy penalties.</li>
+                <li>Give way to Ambulances and Fire Engines immediately.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="emergency-numbers">
+        <h2 style="color: #ff9999; margin-top:0;">Emergency Action Numbers</h2>
+        <div class="number-box">Police: 100</div>
+        <div class="number-box">Emergency: 112</div>
+        <div class="number-box">Ambulance: 108</div>
+        <p style="color:#ccc; margin-bottom:0; margin-top:20px;">Available 24/7. Never hesitate to call in emergencies.</p>
+    </div>
+
+</body>
+</html>

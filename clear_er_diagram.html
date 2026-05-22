@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Project ER Diagram</title>
+    <!-- Import Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark', // Native dark theme
+            themeVariables: {
+                primaryColor: '#1e1e1e',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#2a6f87',
+                lineColor: '#8a5a44',
+                fontFamily: 'JetBrains Mono, Arial, sans-serif'
+            }
+        });
+    </script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #121212; /* Dark background matching the app */
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 40px;
+        }
+        .diagram-container {
+            background-color: #1a1a1a;
+            padding: 50px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+        h2 {
+            color: #e0b0ff; /* Light purple/gold accent */
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h2 style="color: #c9a227;">TN_CORE Database - Complete ER Diagram</h2>
+        
+        <!-- The Full Mermaid Diagram -->
+        <div class="mermaid">
+            erDiagram
+                Users {
+                    INTEGER id PK
+                    VARCHAR cop_id UK
+                    VARCHAR password
+                    VARCHAR name
+                    VARCHAR rank
+                    VARCHAR patrol_status
+                }
+
+                Complaints {
+                    INTEGER id PK
+                    VARCHAR full_name
+                    VARCHAR district
+                    VARCHAR incident_type
+                    TEXT description
+                    VARCHAR status
+                    DATETIME created_at
+                    INTEGER filed_by_cop_id FK
+                }
+
+                Suspects {
+                    INTEGER suspect_id PK
+                    VARCHAR aadhaar_id UK
+                    VARCHAR reason
+                    VARCHAR risk_level
+                }
+
+                Audit_Logs {
+                    INTEGER log_id PK
+                    INTEGER cop_id FK
+                    VARCHAR action
+                    DATETIME timestamp
+                }
+
+                Dispatches {
+                    INTEGER dispatch_id PK
+                    VARCHAR dispatch_type
+                    VARCHAR status
+                    INTEGER assigned_cop_id FK
+                    DATETIME dispatch_time
+                }
+
+                %% Relationships
+                Users ||--o{ Complaints : "files / manages"
+                Users ||--o{ Audit_Logs : "generates"
+                Users ||--o{ Dispatches : "assigned to"
+                Suspects ||--o{ Complaints : "involved in"
+        </div>
+        
+        <p style="margin-top: 30px; color: #888; font-size: 0.9em;">
+            Right-click the diagram above and select "Save image as..."
+        </p>
+    </div>
+</body>
+</html>

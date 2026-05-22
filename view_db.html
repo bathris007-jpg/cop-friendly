@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Data Stream | Heritage-Data-Core</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <div class="app-layout">
+        <aside class="sidebar bento-card">
+            <div class="sidebar-logo">
+                <h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN_CORE</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">Dashboard</a>
+                <a href="view_db.html" class="sidebar-link active">Live Data Stream</a>
+                <a href="complaint.html" class="sidebar-link">File FIR</a>
+                <a href="process.html" class="sidebar-link">System Logs</a>
+                <a href="login.html" class="sidebar-link logout-link">Logout</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-container">
+            <header class="top-bar">
+                <h1><span class="temple-bronze">Cop Protector</span> <span class="obsidian-text">|</span> <span class="electric-gold">Live Database Stream</span></h1>
+                <div class="user-profile">Officer ID: TN-4590 <span class="status-indicator"></span></div>
+            </header>
+
+            <div class="bento-grid">
+                <!-- Data Table -->
+                <div class="bento-card data-table-card span-3" style="min-height: 500px;">
+                    <h2>Real-Time Database Records</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>Subject / Offense</th>
+                                <th>District</th>
+                                <th>Date Filed</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="db-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="empty-message" style="display: none; text-align: center; padding: 40px; color: #888; font-style: italic;">
+                        No database entries found yet.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/complaints');
+                const result = await response.json();
+                
+                const tbody = document.getElementById('db-table-body');
+                const emptyMsg = document.getElementById('empty-message');
+                
+                if (result.success && result.complaints.length > 0) {
+                    result.complaints.forEach(c => {
+                        const tr = document.createElement('tr');
+                        
+                        let badgeClass = 'status-cobalt';
+                        if (c.incident_type.includes('Fraud')) badgeClass = 'status-maroon';
+                        if (c.incident_type.includes('Theft')) badgeClass = 'status-gold';
+                        
+                        let statusDisplay = c.status || 'open';
+                        let statusColor = statusDisplay === 'closed' ? 'status-maroon' : 'status-cobalt';
+                        if (statusDisplay === 'closed') {
+                            statusDisplay = 'file closed';
+                        }
+
+                        tr.innerHTML = `
+                            <td>CMP-${c.id}</td>
+                            <td>${c.incident_type} - ${c.full_name}</td>
+                            <td>${c.district}</td>
+                            <td><span class="status-badge ${badgeClass}">${new Date(c.created_at).toLocaleDateString()}</span></td>
+                            <td style="color: #ccc; font-size: 0.9em; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.description}</td>
+                            <td><span class="status-badge ${statusColor}" style="text-transform: capitalize;">${statusDisplay}</span></td>
+                            <td>
+                                ${c.status !== 'closed' ? `<button onclick="closeCase(${c.id})" class="btn" style="padding: 4px 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--color-temple-maroon); color: var(--color-temple-maroon);">Close Case</button>` : `<span style="color:var(--color-temple-maroon);">Closed</span>`}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    emptyMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Failed to fetch database records:", error);
+                document.getElementById('empty-message').innerHTML = "Error connecting to backend database. Is the server running?";
+                document.getElementById('empty-message').style.display = 'block';
+            }
+        });
+        window.closeCase = async (id) => {
+            if(confirm('Are you sure you want to close this case?')) {
+                try {
+                    const res = await fetch(`/api/complaints/${id}/close`, { method: 'PUT' });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.href = 'case_closed.html';
+                    } else {
+                        alert('Error closing case');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Tip Line | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border-bronze); margin-bottom: 30px; }
+        .form-card { max-width: 600px; margin: 0 auto 40px auto; background: rgba(26, 22, 20, 0.8); border: 1px solid var(--color-electric-cobalt); border-radius: 12px; padding: 30px; }
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <a href="index.html" style="text-decoration:none;"><h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2></a>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link">Home</a>
+            <a href="tips.html" class="sidebar-link active">Anonymous Tips</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="electric-gold">Anonymous Tip Line</h1>
+        <p style="color:#aaa;">Report suspicious activities safely and confidentially. Your identity is 100% protected.</p>
+    </div>
+
+    <div class="form-card">
+        <form id="tip-form">
+            <div class="form-group">
+                <label>Category of Suspicion</label>
+                <select id="t-category" class="neon-input" required>
+                    <option value="Drug Peddling">Drug Peddling</option>
+                    <option value="Illegal Gathering">Illegal Gathering</option>
+                    <option value="Smuggling">Smuggling</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Exact Location</label>
+                <input type="text" id="t-location" class="neon-input" placeholder="Area, Landmark, Street" required>
+            </div>
+            <div class="form-group">
+                <label>Detailed Description</label>
+                <textarea id="t-desc" class="neon-input" style="height: 100px; resize:none;" placeholder="Provide as much detail as possible..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary full-width mt-2" style="border-color:var(--color-electric-cobalt); color:var(--color-electric-cobalt);">Submit Anonymously</button>
+            <div id="status-msg" class="status-log text-center mt-2"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('tip-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const statusMsg = document.getElementById('status-msg');
+            
+            const payload = {
+                category: document.getElementById('t-category').value,
+                location: document.getElementById('t-location').value,
+                description: document.getElementById('t-desc').value
+            };
+
+            btn.disabled = true;
+            btn.innerText = "Encrypting & Submitting...";
+
+            try {
+                const res = await fetch('/api/tips', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    statusMsg.innerHTML = `<span class="pasumai">${data.message}</span>`;
+                    e.target.reset();
+                } else {
+                    statusMsg.innerHTML = `<span class="temple-maroon">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusMsg.innerHTML = '<span class="temple-maroon">Network Error.</span>';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Anonymously";
+            }
+        });
+    </script>
+</body>
+</html>

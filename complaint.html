@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Complaint | Cop Protector</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="centered-body">
+    <div class="watermark-emblem"></div>
+    <div class="bento-card form-card">
+        <h2>File FIR / Public Complaint</h2>
+        <p class="subtitle">Enter details to log an encrypted entry into the TN_Police_Core.</p>
+        
+        <form id="complaint-form" action="process.html">
+            <div class="form-group">
+                <label for="c-name">Full Name</label>
+                <input type="text" id="c-name" class="neon-input" required>
+            </div>
+            <div class="form-group">
+                <label for="c-district">Incident District</label>
+                <select id="c-district" class="neon-input">
+                    <option>Chennai</option>
+                    <option>Madurai</option>
+                    <option>Coimbatore</option>
+                    <option>Salem</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="c-type">Incident Type</label>
+                <select id="c-type" class="neon-input">
+                    <option>Cyber Fraud</option>
+                    <option>Theft</option>
+                    <option>Assault</option>
+                    <option>Traffic Violation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="c-desc">Detailed Description</label>
+                <textarea id="c-desc" class="neon-input" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary full-width electric-hover">Submit to Core Database</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('complaint-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('c-name').value;
+            const district = document.getElementById('c-district').value;
+            const incidentType = document.getElementById('c-type').value;
+            const description = document.getElementById('c-desc').value;
+            
+            try {
+                const response = await fetch('/api/complaints', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, district, incidentType, description })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = 'process.html';
+                } else {
+                    alert('Error filing complaint: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error submitting complaint:', error);
+                alert('Connection error. Is the backend running?');
+            }
+        });
+    </script>
+</body>
+</html>

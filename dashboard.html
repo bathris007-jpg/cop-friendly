@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cop Protector | Heritage-Data-Core</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <div class="app-layout">
+        <aside class="sidebar bento-card">
+            <div class="sidebar-logo">
+                <h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN_CORE</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link active">Dashboard</a>
+                <a href="view_db.html" class="sidebar-link">Live Data Stream</a>
+                <a href="complaint.html" class="sidebar-link">File FIR</a>
+                <a href="process.html" class="sidebar-link">System Logs</a>
+                <a href="feedback.html" class="sidebar-link" style="color:var(--color-pasumai)">Citizen Feedback</a>
+                <a href="login.html" class="sidebar-link logout-link">Logout</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-container">
+            <header class="top-bar">
+                <h1><span class="temple-bronze">Cop Protector</span> <span class="obsidian-text">|</span> <span class="electric-gold">Heritage-Data-Core</span></h1>
+                <div class="user-profile">Officer ID: TN-4590 <span class="status-indicator"></span></div>
+            </header>
+
+        <div class="bento-grid">
+            <!-- Cards: Active Connections, Encryption Status, Incident Logs -->
+            <div class="bento-card connections-card">
+                <h2>Active Connections</h2>
+                <div class="big-number electric-cobalt" id="active-connections">1,402</div>
+                <div class="chart-mockup"></div>
+            </div>
+            
+            <div class="bento-card encryption-card">
+                <h2>Encryption Status</h2>
+                <div class="lock-icon royal-gold">🔒 AES-256 Secured</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="bento-card incident-log-card">
+                <h2>Live Incident Logs</h2>
+                <ul id="incident-list">
+                    <!-- populated by JS -->
+                </ul>
+            </div>
+
+
+
+            <!-- Live Patrol Radar (span 1) -->
+            <div class="bento-card radar-card">
+                <h2>Live Patrol Radar</h2>
+                <div class="radar-container">
+                    <div class="radar-sweep"></div>
+                </div>
+            </div>
+
+            <!-- Query Hall -->
+            <div class="bento-card query-hall-card span-2">
+                <h2>Query Hall</h2>
+                <div class="button-group">
+                    <button id="btn-aadhaar" class="btn">Search by Aadhaar</button>
+                    <button id="btn-district" class="btn">Search by District</button>
+                </div>
+                <div class="editor-container">
+                    <textarea id="sql-editor" spellcheck="false">-- Enter SQL Query Here</textarea>
+                </div>
+            </div>
+
+            <!-- Emergency Dispatch (span 1) -->
+            <div class="bento-card dispatch-card">
+                <h2>Emergency Dispatch</h2>
+                <div class="dispatch-buttons">
+                    <button class="btn btn-danger electric-hover" style="border-color:var(--color-temple-maroon); color:var(--color-temple-maroon);">Deploy Armed Unit</button>
+                    <button class="btn electric-hover">Dispatch Traffic</button>
+                    <button class="btn electric-hover">Request Medical</button>
+                </div>
+            </div>
+
+            <!-- AI Suspect Watchlist (span 1) -->
+            <div class="bento-card watchlist-card">
+                <h2>AI Watchlist</h2>
+                <div class="watchlist-container" id="watchlist-feed">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- Officer Duty Roster (span 1) -->
+            <div class="bento-card roster-card span-1">
+                <h2>Duty Roster</h2>
+                <div class="roster-grid" id="roster-list" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- Community Events (span 1) -->
+            <div class="bento-card events-card span-1">
+                <h2>Community Events</h2>
+                <div style="font-family:var(--font-code); font-size:0.85rem; color:#ccc;">
+                    <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed rgba(184,115,51,0.3)">
+                        <strong class="pasumai">📅 Blood Donation Camp</strong><br>
+                        📍 Marina Beach | Tomorrow, 10 AM<br>
+                        <span style="font-size:0.75rem; color:#888">Organized by TN Police</span>
+                    </div>
+                    <div>
+                        <strong class="electric-cobalt">🚦 Traffic Awareness Drive</strong><br>
+                        📍 Anna Salai | Next Monday, 8 AM<br>
+                        <span style="font-size:0.75rem; color:#888">Open to Public</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data table removed and moved to separate page -->
+
+            <!-- Audit Trail -->
+            <div class="bento-card audit-trail-card span-3">
+                <h2>Audit Trail / தணிக்கை பதிவு</h2>
+                <div class="audit-log-container" id="audit-log">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

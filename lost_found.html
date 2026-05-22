@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Portal | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border-bronze); margin-bottom: 30px; }
+        .split-layout { display: flex; flex-wrap: wrap; gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .form-section { flex: 1; min-width: 300px; }
+        .list-section { flex: 1.5; min-width: 300px; }
+        
+        .lf-card { background: rgba(26, 22, 20, 0.8); border: 1px solid var(--border-bronze); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .lf-card h3 { color: var(--text-gold); font-family: var(--font-code); border-bottom: 1px dashed rgba(218, 165, 32, 0.3); padding-bottom: 10px; margin-top: 0;}
+        
+        .item-row { border-bottom: 1px dotted rgba(255,255,255,0.1); padding: 15px 0; display: flex; justify-content: space-between; align-items: flex-start;}
+        .item-info { flex-grow: 1; }
+        .item-status { font-family: var(--font-code); font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; border: 1px solid;}
+        
+        .status-lost { color: var(--color-temple-maroon); border-color: var(--color-temple-maroon); background: rgba(165,42,42,0.1); }
+        .status-found { color: var(--color-pasumai); border-color: var(--color-pasumai); background: rgba(0,255,127,0.1); }
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <a href="index.html" style="text-decoration:none;"><h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2></a>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link">Home</a>
+            <a href="safety.html" class="sidebar-link">Safety Resources</a>
+            <a href="lost_found.html" class="sidebar-link active">Lost & Found</a>
+            <a href="dashboard.html" class="sidebar-link logout-link">Officer Login</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="electric-gold">Lost & Found Portal</h1>
+        <p style="color:#aaa;">Report lost belongings or check if your item has been recovered and turned in.</p>
+    </div>
+
+    <div class="split-layout">
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="lf-card">
+                <h3>Report an Item</h3>
+                <form id="lf-form">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="lf-status" class="neon-input" required>
+                            <option value="Lost">I Lost Something</option>
+                            <option value="Found">I Found Something</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Item Type</label>
+                        <input type="text" id="lf-type" class="neon-input" placeholder="e.g. Wallet, Mobile Phone, Keys" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description & Location</label>
+                        <textarea id="lf-desc" class="neon-input" style="height: 80px; resize:none;" placeholder="Brand, color, where you lost/found it..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Info (Phone/Email)</label>
+                        <input type="text" id="lf-contact" class="neon-input" placeholder="How can we reach you?" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width mt-2">Submit Report</button>
+                    <div id="status-msg" class="status-log text-center mt-2"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- List Section -->
+        <div class="list-section">
+            <div class="lf-card">
+                <h3>Recent Reports</h3>
+                <div id="items-list" style="max-height: 500px; overflow-y: auto;">
+                    <p style="color:#888;">Loading registry...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch items on load
+        async function fetchItems() {
+            try {
+                const res = await fetch('/api/lost_found');
+                const data = await res.json();
+                const list = document.getElementById('items-list');
+                
+                if (data.success && data.items.length > 0) {
+                    list.innerHTML = '';
+                    data.items.forEach(item => {
+                        const dateObj = new Date(item.reported_at);
+                        const statusClass = item.status.toLowerCase() === 'lost' ? 'status-lost' : 'status-found';
+                        
+                        list.innerHTML += `
+                            <div class="item-row">
+                                <div class="item-info">
+                                    <strong style="color:var(--text-bronze)">${item.item_type}</strong>
+                                    <p style="margin: 5px 0; color:#ccc; font-size:0.9rem;">${item.description}</p>
+                                    <span style="font-size:0.75rem; color:#888;">Reported: ${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}</span>
+                                </div>
+                                <div class="item-status ${statusClass}">${item.status.toUpperCase()}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<p style="color:#888;">No items reported yet.</p>';
+                }
+            } catch(e) {
+                document.getElementById('items-list').innerHTML = '<p class="temple-maroon">Could not load items. Check server connection.</p>';
+            }
+        }
+
+        fetchItems();
+
+        // Submit new item
+        document.getElementById('lf-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const statusMsg = document.getElementById('status-msg');
+            
+            const payload = {
+                status: document.getElementById('lf-status').value,
+                item_type: document.getElementById('lf-type').value,
+                description: document.getElementById('lf-desc').value,
+                contact_info: document.getElementById('lf-contact').value
+            };
+
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+
+            try {
+                const res = await fetch('/api/lost_found', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    statusMsg.innerHTML = '<span class="pasumai">Report submitted successfully!</span>';
+                    e.target.reset();
+                    fetchItems(); // refresh list
+                } else {
+                    statusMsg.innerHTML = `<span class="temple-maroon">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusMsg.innerHTML = '<span class="temple-maroon">Network Error. Ensure server is running.</span>';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Report";
+            }
+        });
+    </script>
+</body>
+</html>

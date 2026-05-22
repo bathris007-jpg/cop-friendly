@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Challan Checker | Cop Friendly TN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border-bronze); margin-bottom: 30px; }
+        .form-card { max-width: 600px; margin: 0 auto 40px auto; background: rgba(26, 22, 20, 0.8); border: 1px solid var(--border-bronze); border-radius: 12px; padding: 30px; text-align: center;}
+        .fine-card { border: 1px solid var(--color-temple-maroon); background: rgba(165,42,42,0.1); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;}
+        .fine-card h4 { margin: 0 0 10px 0; color: var(--color-temple-maroon); font-family: var(--font-code); }
+    </style>
+</head>
+<body>
+    <div class="watermark-emblem"></div>
+    <header style="padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border-bronze);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="assets/logo.png" alt="TN Police Logo" style="height: 40px;">
+            <a href="index.html" style="text-decoration:none;"><h2 class="electric-gold" style="margin:0; font-family:var(--font-code);">TN POLICE</h2></a>
+        </div>
+        <nav style="display: flex; gap: 20px;">
+            <a href="index.html" class="sidebar-link">Home</a>
+            <a href="traffic.html" class="sidebar-link active">Traffic Fines</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1 class="electric-gold">Traffic E-Challan Checker</h1>
+        <p style="color:#aaa;">Enter your vehicle registration number to check for pending fines.</p>
+    </div>
+
+    <div class="form-card">
+        <form id="traffic-form">
+            <div class="form-group">
+                <input type="text" id="t-vehicle" class="neon-input" style="font-size:1.5rem; text-align:center; text-transform:uppercase;" placeholder="TN-01-AB-1234" required>
+            </div>
+            <button type="submit" class="btn btn-primary full-width">Check Status</button>
+        </form>
+        <div id="results-area" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        document.getElementById('traffic-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const results = document.getElementById('results-area');
+            const vehicle = document.getElementById('t-vehicle').value;
+
+            btn.disabled = true;
+            btn.innerText = "Querying Database...";
+
+            try {
+                const res = await fetch(`/api/traffic/${vehicle}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    if(data.fines.length === 0) {
+                        results.innerHTML = `<h3 class="pasumai">No pending fines for ${vehicle.toUpperCase()}. Drive safely!</h3>`;
+                    } else {
+                        results.innerHTML = `<h3 class="temple-maroon">Pending Fines Found</h3>`;
+                        data.fines.forEach(fine => {
+                            results.innerHTML += `
+                                <div class="fine-card">
+                                    <h4>₹${fine.fine_amount} - ${fine.reason}</h4>
+                                    <p style="margin:0; color:#ccc;">Owner: ${fine.owner_name} | Status: ${fine.status}</p>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    results.innerHTML = `<span class="temple-maroon">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                results.innerHTML = '<span class="temple-maroon">Network Error.</span>';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Check Status";
+            }
+        });
+    </script>
+</body>
+</html>
