@@ -1,26 +1,38 @@
 // Secure Admin Panel Logic
 
-const PIN = "1234";
+async function checkLogin() {
+    const cop_id = document.getElementById('username-input').value;
+    const password = document.getElementById('password-input').value;
 
-function checkPin() {
-    const input = document.getElementById('pin-input').value;
-    if (input === PIN) {
-        // Unlock
-        document.getElementById('security-overlay').style.display = 'none';
-        document.getElementById('admin-content').style.display = 'block';
-        
-        // Load data
-        loadAdminData();
-    } else {
-        document.getElementById('pin-error').style.display = 'block';
-        document.getElementById('pin-input').value = "";
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cop_id, password })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Unlock
+            document.getElementById('security-overlay').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            
+            // Load data
+            loadAdminData();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+            document.getElementById('password-input').value = "";
+        }
+    } catch (err) {
+        document.getElementById('login-error').innerText = "Connection Error";
+        document.getElementById('login-error').style.display = 'block';
     }
 }
 
 // Allow enter key
-document.getElementById('pin-input').addEventListener('keypress', function (e) {
+document.getElementById('password-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
-        checkPin();
+        checkLogin();
     }
 });
 

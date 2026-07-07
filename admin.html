@@ -99,11 +99,13 @@
     <div id="security-overlay">
         <div class="passcode-box">
             <h2 class="electric-gold" style="font-family: var(--font-code);">RESTRICTED ACCESS</h2>
-            <p style="color:#aaa;">Enter Authorization PIN (Hint: 1234)</p>
-            <input type="password" id="pin-input" class="passcode-input" maxlength="4" autofocus>
+            <p style="color:#aaa;">Enter Officer Credentials</p>
+            <input type="text" id="username-input" class="passcode-input" placeholder="Officer ID" style="font-size: 1.2rem; letter-spacing: 2px;" autofocus>
             <br>
-            <button class="btn btn-primary" onclick="checkPin()">Access Core</button>
-            <p id="pin-error" style="color:var(--color-temple-maroon); margin-top:10px; display:none;">Invalid Authorization Code</p>
+            <input type="password" id="password-input" class="passcode-input" placeholder="Password" style="font-size: 1.2rem; letter-spacing: 2px;">
+            <br>
+            <button class="btn btn-primary" onclick="checkLogin()">Authenticate</button>
+            <p id="login-error" style="color:var(--color-temple-maroon); margin-top:10px; display:none;">Invalid Credentials</p>
         </div>
     </div>
 
