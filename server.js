@@ -1,5 +1,5 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
@@ -14,302 +14,361 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from the current directory
 app.use(express.static(path.join(__dirname)));
 
-// Initialize SQLite Database
-const db = new sqlite3.Database('./database.db', (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-        
-        db.serialize(() => {
-            // Create Users table
-            db.run(`CREATE TABLE IF NOT EXISTS Users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cop_id TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            name TEXT,
-            rank TEXT,
-            patrol_status TEXT
-        )`, (err) => {
-            if (err) console.error("Error creating Users table:", err.message);
-        });
+// Connect to MongoDB
+// Use MONGODB_URI from environment, or a local fallback for testing if none provided
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dbms_cop_friendly';
 
-        // Create Complaints table
-        db.run(`CREATE TABLE IF NOT EXISTS Complaints (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            district TEXT NOT NULL,
-            incident_type TEXT NOT NULL,
-            description TEXT NOT NULL,
-            status TEXT DEFAULT 'open',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            filed_by_cop_id INTEGER,
-            FOREIGN KEY(filed_by_cop_id) REFERENCES Users(id)
-        )`, (err) => {
-            if (err) console.error("Error creating Complaints table:", err.message);
-        });
-
-        // Create Feedback table
-        db.run(`CREATE TABLE IF NOT EXISTS Feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            station TEXT NOT NULL,
-            rating INTEGER NOT NULL,
-            comments TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, (err) => {
-            if (err) console.error("Error creating Feedback table:", err.message);
-        });
-
-        // Create Suspects table
-        db.run(`CREATE TABLE IF NOT EXISTS Suspects (
-            suspect_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            aadhaar_id TEXT UNIQUE NOT NULL,
-            reason TEXT NOT NULL,
-            risk_level TEXT NOT NULL
-        )`, (err) => {
-            if (err) console.error("Error creating Suspects table:", err.message);
-        });
-
-        // Create Audit_Logs table
-        db.run(`CREATE TABLE IF NOT EXISTS Audit_Logs (
-            log_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cop_id INTEGER,
-            action TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(cop_id) REFERENCES Users(id)
-        )`, (err) => {
-            if (err) console.error("Error creating Audit_Logs table:", err.message);
-        });
-
-        // Create Dispatches table
-        db.run(`CREATE TABLE IF NOT EXISTS Dispatches (
-            dispatch_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dispatch_type TEXT NOT NULL,
-            status TEXT DEFAULT 'pending',
-            assigned_cop_id INTEGER,
-            dispatch_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(assigned_cop_id) REFERENCES Users(id)
-        )`, (err) => {
-            if (err) console.error("Error creating Dispatches table:", err.message);
-        });
-
-        // Create Lost_Found table
-        db.run(`CREATE TABLE IF NOT EXISTS Lost_Found (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            item_type TEXT NOT NULL,
-            description TEXT NOT NULL,
-            status TEXT DEFAULT 'Lost',
-            contact_info TEXT NOT NULL,
-            reported_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, (err) => {
-            if (err) console.error("Error creating Lost_Found table:", err.message);
-        });
-
-        // Create Anonymous_Tips table
-        db.run(`CREATE TABLE IF NOT EXISTS Anonymous_Tips (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            category TEXT NOT NULL,
-            description TEXT NOT NULL,
-            location TEXT NOT NULL,
-            submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, (err) => {
-            if (err) console.error("Error creating Anonymous_Tips table:", err.message);
-        });
-
-        // Create Traffic_Fines table
-        db.run(`CREATE TABLE IF NOT EXISTS Traffic_Fines (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            vehicle_no TEXT UNIQUE NOT NULL,
-            owner_name TEXT NOT NULL,
-            fine_amount INTEGER NOT NULL,
-            reason TEXT NOT NULL,
-            status TEXT DEFAULT 'Unpaid'
-        )`, (err) => {
-            if (err) console.error("Error creating Traffic_Fines table:", err.message);
-        });
-
-        // Seed an initial user if none exists
-        db.get("SELECT * FROM Users WHERE cop_id = 'COP-123'", (err, row) => {
-            if (!row) {
-                db.run("INSERT INTO Users (cop_id, password, name, rank, patrol_status) VALUES ('COP-123', 'admin123', 'S. Kumar', 'Inspector', 'On Patrol')", (err) => {
-                    if (err) console.error("Error seeding user:", err.message);
-                    else {
-                        console.log("Seeded default user: COP-123 / admin123");
-                        // Seed extra tables
-                        db.run("INSERT OR IGNORE INTO Suspects (aadhaar_id, reason, risk_level) VALUES ('AAD-9988', 'Pending Warrant', 'High')");
-                        db.run("INSERT INTO Audit_Logs (cop_id, action) VALUES (1, 'System Initialization')");
-                        db.run("INSERT INTO Dispatches (dispatch_type, status, assigned_cop_id) VALUES ('Deploy Armed Unit', 'dispatched', 1)");
-                        
-                        // Seed Traffic Fines
-                        db.run("INSERT OR IGNORE INTO Traffic_Fines (vehicle_no, owner_name, fine_amount, reason) VALUES ('TN-01-AB-1234', 'Ramesh K.', 500, 'Signal Jump')");
-                        db.run("INSERT OR IGNORE INTO Traffic_Fines (vehicle_no, owner_name, fine_amount, reason) VALUES ('TN-22-XY-9988', 'Priya S.', 1000, 'Over speeding')");
-                    }
-                });
-            }
-        });
-    });
-    }
+mongoose.connect(MONGODB_URI).then(async () => {
+    console.log('Connected to MongoDB.');
+    await seedDatabase();
+}).catch(err => {
+    console.error('Error connecting to MongoDB:', err.message);
 });
+
+// --- Mongoose Schemas & Models ---
+
+const UserSchema = new mongoose.Schema({
+    cop_id: { type: String, unique: true, required: true },
+    password: { type: String, required: true },
+    name: String,
+    rank: String,
+    patrol_status: String
+});
+const User = mongoose.model('User', UserSchema);
+
+const ComplaintSchema = new mongoose.Schema({
+    full_name: { type: String, required: true },
+    district: { type: String, required: true },
+    incident_type: { type: String, required: true },
+    description: { type: String, required: true },
+    status: { type: String, default: 'open' },
+    created_at: { type: Date, default: Date.now },
+    filed_by_cop_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+});
+const Complaint = mongoose.model('Complaint', ComplaintSchema);
+
+const FeedbackSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    station: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comments: { type: String, required: true },
+    created_at: { type: Date, default: Date.now }
+});
+const Feedback = mongoose.model('Feedback', FeedbackSchema);
+
+const SuspectSchema = new mongoose.Schema({
+    aadhaar_id: { type: String, unique: true, required: true },
+    reason: { type: String, required: true },
+    risk_level: { type: String, required: true }
+});
+const Suspect = mongoose.model('Suspect', SuspectSchema);
+
+const AuditLogSchema = new mongoose.Schema({
+    cop_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    action: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+});
+const AuditLog = mongoose.model('AuditLog', AuditLogSchema);
+
+const DispatchSchema = new mongoose.Schema({
+    dispatch_type: { type: String, required: true },
+    status: { type: String, default: 'pending' },
+    assigned_cop_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    dispatch_time: { type: Date, default: Date.now }
+});
+const Dispatch = mongoose.model('Dispatch', DispatchSchema);
+
+const LostFoundSchema = new mongoose.Schema({
+    item_type: { type: String, required: true },
+    description: { type: String, required: true },
+    status: { type: String, default: 'Lost' },
+    contact_info: { type: String, required: true },
+    reported_at: { type: Date, default: Date.now }
+});
+const LostFound = mongoose.model('LostFound', LostFoundSchema);
+
+const AnonymousTipSchema = new mongoose.Schema({
+    category: { type: String, required: true },
+    description: { type: String, required: true },
+    location: { type: String, required: true },
+    submitted_at: { type: Date, default: Date.now }
+});
+const AnonymousTip = mongoose.model('AnonymousTip', AnonymousTipSchema);
+
+const TrafficFineSchema = new mongoose.Schema({
+    vehicle_no: { type: String, unique: true, required: true },
+    owner_name: { type: String, required: true },
+    fine_amount: { type: Number, required: true },
+    reason: { type: String, required: true },
+    status: { type: String, default: 'Unpaid' }
+});
+const TrafficFine = mongoose.model('TrafficFine', TrafficFineSchema);
+
+// --- Database Seeding Function ---
+async function seedDatabase() {
+    try {
+        const adminUser = await User.findOne({ cop_id: 'COP-123' });
+        if (!adminUser) {
+            const newUser = await User.create({
+                cop_id: 'COP-123',
+                password: 'admin123',
+                name: 'S. Kumar',
+                rank: 'Inspector',
+                patrol_status: 'On Patrol'
+            });
+            console.log("Seeded default user: COP-123 / admin123");
+
+            // Seed extra tables
+            await Suspect.findOneAndUpdate(
+                { aadhaar_id: 'AAD-9988' },
+                { reason: 'Pending Warrant', risk_level: 'High' },
+                { upsert: true }
+            );
+
+            await AuditLog.create({ cop_id: newUser._id, action: 'System Initialization' });
+            
+            await Dispatch.create({
+                dispatch_type: 'Deploy Armed Unit',
+                status: 'dispatched',
+                assigned_cop_id: newUser._id
+            });
+
+            // Seed Traffic Fines
+            await TrafficFine.findOneAndUpdate(
+                { vehicle_no: 'TN-01-AB-1234' },
+                { owner_name: 'Ramesh K.', fine_amount: 500, reason: 'Signal Jump' },
+                { upsert: true }
+            );
+            await TrafficFine.findOneAndUpdate(
+                { vehicle_no: 'TN-22-XY-9988' },
+                { owner_name: 'Priya S.', fine_amount: 1000, reason: 'Over speeding' },
+                { upsert: true }
+            );
+        }
+    } catch (err) {
+        console.error("Error seeding database:", err.message);
+    }
+}
 
 // --- API Endpoints ---
 
 // Register API
-app.post('/api/register', (req, res) => {
+app.post('/api/register', async (req, res) => {
     const { cop_id, password } = req.body;
     
     if (!cop_id || !password) {
         return res.status(400).json({ error: "Missing credentials" });
     }
 
-    db.run("INSERT INTO Users (cop_id, password) VALUES (?, ?)", [cop_id, password], function(err) {
-        if (err) {
-            return res.status(400).json({ error: "ID already exists or database error" });
+    try {
+        const existingUser = await User.findOne({ cop_id });
+        if (existingUser) {
+            return res.status(400).json({ error: "ID already exists" });
         }
+        await User.create({ cop_id, password });
         res.json({ success: true, message: "Registration successful" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Login API
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { cop_id, password } = req.body;
     
     if (!cop_id || !password) {
         return res.status(400).json({ error: "Missing credentials" });
     }
 
-    // In a real app, passwords should be hashed. Here we use plaintext for simplicity.
-    db.get("SELECT * FROM Users WHERE cop_id = ? AND password = ?", [cop_id, password], (err, row) => {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        if (row) {
-            res.json({ success: true, message: "Login successful", user: { id: row.id, cop_id: row.cop_id } });
+    try {
+        const user = await User.findOne({ cop_id, password });
+        if (user) {
+            res.json({ success: true, message: "Login successful", user: { id: user._id, cop_id: user.cop_id } });
         } else {
             res.status(401).json({ success: false, error: "Invalid credentials" });
         }
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Submit Complaint API
-app.post('/api/complaints', (req, res) => {
+app.post('/api/complaints', async (req, res) => {
     const { fullName, district, incidentType, description } = req.body;
     
     if (!fullName || !district || !incidentType || !description) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const sql = `INSERT INTO Complaints (full_name, district, incident_type, description) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [fullName, district, incidentType, description], function(err) {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ success: true, message: "Complaint filed successfully", complaintId: this.lastID });
-    });
+    try {
+        const complaint = await Complaint.create({
+            full_name: fullName,
+            district,
+            incident_type: incidentType,
+            description
+        });
+        res.json({ success: true, message: "Complaint filed successfully", complaintId: complaint._id });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Get Complaints API (for potential use in dashboard)
-app.get('/api/complaints', (req, res) => {
-    db.all("SELECT * FROM Complaints ORDER BY created_at DESC", [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ success: true, complaints: rows });
-    });
+app.get('/api/complaints', async (req, res) => {
+    try {
+        const complaints = await Complaint.find().sort({ created_at: -1 }).lean();
+        const mappedComplaints = complaints.map(c => ({...c, id: c._id}));
+        res.json({ success: true, complaints: mappedComplaints });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Close Complaint Case API
-app.put('/api/complaints/:id/close', (req, res) => {
+app.put('/api/complaints/:id/close', async (req, res) => {
     const { id } = req.params;
-    db.run("UPDATE Complaints SET status = 'closed' WHERE id = ?", [id], function(err) {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
+    try {
+        await Complaint.findByIdAndUpdate(id, { status: 'closed' });
         res.json({ success: true, message: "Case closed successfully" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Submit Feedback API
-app.post('/api/feedback', (req, res) => {
+app.post('/api/feedback', async (req, res) => {
     const { name, station, rating, comments } = req.body;
     
     if (!name || !station || !rating || !comments) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const sql = `INSERT INTO Feedback (name, station, rating, comments) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [name, station, rating, comments], function(err) {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
+    try {
+        await Feedback.create({ name, station, rating, comments });
         res.json({ success: true, message: "Feedback submitted successfully!" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Get Feedback API
-app.get('/api/feedback', (req, res) => {
-    db.all("SELECT * FROM Feedback ORDER BY created_at DESC", [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ success: true, feedback: rows });
-    });
+app.get('/api/feedback', async (req, res) => {
+    try {
+        const feedback = await Feedback.find().sort({ created_at: -1 }).lean();
+        res.json({ success: true, feedback: feedback.map(f => ({...f, id: f._id})) });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Submit Lost & Found API
-app.post('/api/lost_found', (req, res) => {
+app.post('/api/lost_found', async (req, res) => {
     const { item_type, description, status, contact_info } = req.body;
     
     if (!item_type || !description || !contact_info) {
         return res.status(400).json({ error: "Item type, description, and contact info are required" });
     }
 
-    const sql = `INSERT INTO Lost_Found (item_type, description, status, contact_info) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [item_type, description, status || 'Lost', contact_info], function(err) {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
+    try {
+        await LostFound.create({
+            item_type,
+            description,
+            status: status || 'Lost',
+            contact_info
+        });
         res.json({ success: true, message: "Report submitted successfully!" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Get Lost & Found API
-app.get('/api/lost_found', (req, res) => {
-    db.all("SELECT * FROM Lost_Found ORDER BY reported_at DESC", [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ success: true, items: rows });
-    });
+app.get('/api/lost_found', async (req, res) => {
+    try {
+        const items = await LostFound.find().sort({ reported_at: -1 }).lean();
+        res.json({ success: true, items: items.map(i => ({...i, id: i._id})) });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Submit Anonymous Tip API
-app.post('/api/tips', (req, res) => {
+app.post('/api/tips', async (req, res) => {
     const { category, description, location } = req.body;
     
     if (!category || !description || !location) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const sql = `INSERT INTO Anonymous_Tips (category, description, location) VALUES (?, ?, ?)`;
-    db.run(sql, [category, description, location], function(err) {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
+    try {
+        await AnonymousTip.create({ category, description, location });
         res.json({ success: true, message: "Tip submitted anonymously. Thank you." });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Check Traffic Fine API
-app.get('/api/traffic/:vehicle', (req, res) => {
+app.get('/api/traffic/:vehicle', async (req, res) => {
     const vehicle_no = req.params.vehicle.toUpperCase();
     
-    db.all("SELECT * FROM Traffic_Fines WHERE vehicle_no = ?", [vehicle_no], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ success: true, fines: rows });
-    });
+    try {
+        const fines = await TrafficFine.find({ vehicle_no }).lean();
+        res.json({ success: true, fines: fines.map(f => ({...f, id: f._id})) });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+// Get Suspects API
+app.get('/api/suspects', async (req, res) => {
+    try {
+        const suspects = await Suspect.find().lean();
+        res.json({ success: true, suspects });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+// Get Audit Logs API
+app.get('/api/audit-logs', async (req, res) => {
+    try {
+        const logs = await AuditLog.find().populate('cop_id', 'cop_id').sort({ timestamp: -1 }).limit(20).lean();
+        res.json({ success: true, logs });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+// Get Users API (for Roster)
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find().select('-password').lean();
+        res.json({ success: true, users });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+// Get Dispatches API (for Incidents)
+app.get('/api/dispatches', async (req, res) => {
+    try {
+        const dispatches = await Dispatch.find().sort({ dispatch_time: -1 }).limit(20).lean();
+        res.json({ success: true, dispatches });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+// Create Dispatch API
+app.post('/api/dispatches', async (req, res) => {
+    const { action } = req.body;
+    try {
+        const dispatch = await Dispatch.create({ dispatch_type: action, status: 'dispatched' });
+        res.json({ success: true, dispatch });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 // Export for Vercel
