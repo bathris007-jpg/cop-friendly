@@ -26,13 +26,18 @@ const connectDB = async () => {
         await seedDatabase();
     } catch (err) {
         console.error('Error connecting to MongoDB:', err.message);
+        throw err;
     }
 };
 
 // Ensure database is connected before handling any API requests
 app.use(async (req, res, next) => {
     if (req.path.startsWith('/api/')) {
-        await connectDB();
+        try {
+            await connectDB();
+        } catch (err) {
+            return res.status(500).json({ error: "DB Connect Error: " + err.message });
+        }
     }
     next();
 });
@@ -221,7 +226,8 @@ app.post('/api/complaints', async (req, res) => {
         });
         res.json({ success: true, message: "Complaint filed successfully", complaintId: complaint._id });
     } catch (err) {
-        res.status(500).json({ error: "Database error" });
+        console.error(err);
+        res.status(500).json({ error: "DB Error: " + err.message });
     }
 });
 
