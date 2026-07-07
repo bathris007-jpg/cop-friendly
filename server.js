@@ -16,12 +16,12 @@ app.use(express.static(path.join(__dirname)));
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dbms_cop_friendly';
-let isConnected = false;
 const connectDB = async () => {
-    if (isConnected) return;
+    if (mongoose.connection.readyState >= 1) return;
     try {
-        await mongoose.connect(MONGODB_URI);
-        isConnected = true;
+        await mongoose.connect(MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000
+        });
         console.log('Connected to MongoDB.');
         await seedDatabase();
     } catch (err) {
