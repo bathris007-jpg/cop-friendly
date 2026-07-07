@@ -15,14 +15,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // Connect to MongoDB
-// Use MONGODB_URI from environment, or a local fallback for testing if none provided
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dbms_cop_friendly';
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(MONGODB_URI);
+        isConnected = true;
+        console.log('Connected to MongoDB.');
+        await seedDatabase();
+    } catch (err) {
+        console.error('Error connecting to MongoDB:', err.message);
+    }
+};
 
-mongoose.connect(MONGODB_URI).then(async () => {
-    console.log('Connected to MongoDB.');
-    await seedDatabase();
-}).catch(err => {
-    console.error('Error connecting to MongoDB:', err.message);
+// Ensure database is connected before handling any API requests
+app.use(async (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        await connectDB();
+    }
+    next();
 });
 
 // --- Mongoose Schemas & Models ---
