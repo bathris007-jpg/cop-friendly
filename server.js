@@ -242,6 +242,24 @@ app.get('/api/complaints', async (req, res) => {
     }
 });
 
+// Get Stats API for Admin Dashboard
+app.get('/api/stats', async (req, res) => {
+    try {
+        const districtStats = await Complaint.aggregate([
+            { $group: { _id: "$district", count: { $sum: 1 } } }
+        ]);
+        
+        const typeStats = await Complaint.aggregate([
+            { $group: { _id: "$incident_type", count: { $sum: 1 } } }
+        ]);
+
+        res.json({ success: true, districtStats, typeStats });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch stats" });
+    }
+});
+
 // Close Complaint Case API
 app.put('/api/complaints/:id/close', async (req, res) => {
     const { id } = req.params;

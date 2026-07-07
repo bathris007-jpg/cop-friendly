@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TN Police | Secure Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Security Overlay */
+        #security-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 12, 0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .passcode-box {
+            background: rgba(26, 22, 20, 0.9);
+            padding: 40px;
+            border: 1px solid var(--color-temple-maroon);
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(139, 0, 0, 0.3);
+        }
+        .passcode-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--text-gold);
+            color: var(--text-gold);
+            font-family: var(--font-code);
+            font-size: 2rem;
+            text-align: center;
+            width: 150px;
+            outline: none;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+
+        /* Admin Layout */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none; /* hidden until unlocked */
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            max-height: 400px;
+        }
+        .chart-card {
+            background: rgba(26, 22, 20, 0.8);
+            border: 1px solid var(--border-bronze);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .data-table-card {
+            background: rgba(26, 22, 20, 0.8);
+            border: 1px solid var(--border-bronze);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-code);
+            color: #ccc;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.2);
+        }
+        th {
+            color: var(--text-bronze);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        tr:hover {
+            background: rgba(218, 165, 32, 0.05);
+        }
+    </style>
+</head>
+<body class="centered-body" style="align-items: flex-start; justify-content: flex-start;">
+    
+    <!-- Security Overlay -->
+    <div id="security-overlay">
+        <div class="passcode-box">
+            <h2 class="electric-gold" style="font-family: var(--font-code);">RESTRICTED ACCESS</h2>
+            <p style="color:#aaa;">Enter Authorization PIN (Hint: 1234)</p>
+            <input type="password" id="pin-input" class="passcode-input" maxlength="4" autofocus>
+            <br>
+            <button class="btn btn-primary" onclick="checkPin()">Access Core</button>
+            <p id="pin-error" style="color:var(--color-temple-maroon); margin-top:10px; display:none;">Invalid Authorization Code</p>
+        </div>
+    </div>
+
+    <div class="watermark-emblem"></div>
+
+    <div class="admin-container" id="admin-content">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px; border-bottom: 1px solid var(--border-bronze); padding-bottom: 15px;">
+            <h1 class="electric-gold">Command Analytics Core</h1>
+            <a href="index.html" class="btn" style="border-color:var(--text-bronze); color:var(--text-bronze);">Exit Terminal</a>
+        </header>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 style="color:var(--text-bronze); font-family:var(--font-code); margin-bottom:15px;">Incidents by District</h3>
+                <canvas id="districtChart" style="max-height: 250px;"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 style="color:var(--text-bronze); font-family:var(--font-code); margin-bottom:15px;">Incident Types</h3>
+                <canvas id="typeChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table-card">
+            <h3 style="color:var(--text-bronze); font-family:var(--font-code); margin-bottom:15px;">Master Complaints Registry</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>District</th>
+                        <th>Type</th>
+                        <th>Complainant Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="complaints-table-body">
+                    <tr><td colspan="6" style="text-align:center;">Loading Registry...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
